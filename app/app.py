@@ -4,6 +4,7 @@ from langchain.prompts import ChatPromptTemplate
 from langchain.schema import StrOutputParser
 from langchain.chains import LLMChain
 
+
 @cl.on_chat_start
 async def on_chat_start():
     ##########################################################################
@@ -15,20 +16,30 @@ async def on_chat_start():
     # to set streaming=True for streaming tokens
     ##########################################################################
     model = ChatOpenAI(
-        ...
+        model="gpt-3.5-turbo-16k-0613",
+        streaming=True
     )
 
     ##########################################################################
     # Exercise 1b:
     # Next, we will need to set the prompt template for chat. Prompt templates
-    # is how we set prompts and then inject informations into the prompt.
+    # is how we set prompts and then inject information into the prompt.
     # 
     # Please create the prompt template using ChatPromptTemplate. Use variable
     # name "question" as the variable in the template.
     # Refer to the documentation listed in the README.md file for reference.
     ##########################################################################
     prompt = ChatPromptTemplate.from_messages(
-        ...
+        [
+            (
+                "system",
+                "You are Chainlit GPT, a helpful assistant.",
+            ),
+            (
+                "human",
+                "{question}"
+            ),
+        ]
     )
     ##########################################################################
     # Exercise 1c:
@@ -37,8 +48,8 @@ async def on_chat_start():
     # LLM outputs.
     ##########################################################################
     chain = LLMChain(
-        llm=...,
-        prompt=...,
+        llm=model,
+        prompt=prompt,
         output_parser=StrOutputParser()
     )
 
@@ -60,7 +71,7 @@ async def main(message: cl.Message):
     # response to the user.
     ##########################################################################
     response = await chain.arun(
-        ...,
+        question=message.content,
         callbacks=[cl.LangchainCallbackHandler()]
     )
 
